@@ -1,0 +1,20 @@
+
+  cost_field.cpp
+C:\Users\azeem\Documents\Projects\Games\OpenAge\standalone_pathfinding\pathfinding\cost_field.cpp(1,1): error C1041: cannot open program database 'C:\Users\azeem\Documents\Projects\Games\OpenAge\build_pathfinding\Debug\pathfinding.pdb'; if multiple CL.EXE write to the same .PDB file, please use /FS [C:\Users\azeem\Documents\Projects\Games\OpenAge\build_pathfinding\pathfinding.vcxproj]
+  integration_field.cpp
+C:\Users\azeem\Documents\Projects\Games\OpenAge\standalone_pathfinding\pathfinding\integration_field.cpp(1,1): error C1041: cannot open program database 'C:\Users\azeem\Documents\Projects\Games\OpenAge\build_pathfinding\Debug\pathfinding.pdb'; if multiple CL.EXE write to the same .PDB file, please use /FS [C:\Users\azeem\Documents\Projects\Games\OpenAge\build_pathfinding\pathfinding.vcxproj]
+  flow_field.cpp
+C:\Users\azeem\Documents\Projects\Games\OpenAge\standalone_pathfinding\pathfinding\flow_field.cpp(1,1): error C1041: cannot open program database 'C:\Users\azeem\Documents\Projects\Games\OpenAge\build_pathfinding\Debug\pathfinding.pdb'; if multiple CL.EXE write to the same .PDB file, please use /FS [C:\Users\azeem\Documents\Projects\Games\OpenAge\build_pathfinding\pathfinding.vcxproj]
+  integrator.cpp
+C:\Users\azeem\Documents\Projects\Games\OpenAge\standalone_pathfinding\pathfinding\integrator.cpp(1,1): error C1041: cannot open program database 'C:\Users\azeem\Documents\Projects\Games\OpenAge\build_pathfinding\Debug\pathfinding.pdb'; if multiple CL.EXE write to the same .PDB file, please use /FS [C:\Users\azeem\Documents\Projects\Games\OpenAge\build_pathfinding\pathfinding.vcxproj]
+  sector.cpp
+C:\Users\azeem\Documents\Projects\Games\OpenAge\standalone_pathfinding\pathfinding\sector.cpp(1,1): error C1041: cannot open program database 'C:\Users\azeem\Documents\Projects\Games\OpenAge\build_pathfinding\Debug\pathfinding.pdb'; if multiple CL.EXE write to the same .PDB file, please use /FS [C:\Users\azeem\Documents\Projects\Games\OpenAge\build_pathfinding\pathfinding.vcxproj]
+  grid.cpp
+C:\Users\azeem\Documents\Projects\Games\OpenAge\standalone_pathfinding\pathfinding\grid.cpp(1,1): error C1041: cannot open program database 'C:\Users\azeem\Documents\Projects\Games\OpenAge\build_pathfinding\Debug\pathfinding.pdb'; if multiple CL.EXE write to the same .PDB file, please use /FS [C:\Users\azeem\Documents\Projects\Games\OpenAge\build_pathfinding\pathfinding.vcxproj]
+  path.cpp
+C:\Users\azeem\Documents\Projects\Games\OpenAge\standalone_pathfinding\pathfinding\path.cpp(1,1): error C1041: cannot open program database 'C:\Users\azeem\Documents\Projects\Games\OpenAge\build_pathfinding\Debug\pathfinding.pdb'; if multiple CL.EXE write to the same .PDB file, please use /FS [C:\Users\azeem\Documents\Projects\Games\OpenAge\build_pathfinding\pathfinding.vcxproj]
+  pathfinder.cpp
+C:\Users\azeem\Documents\Projects\Games\OpenAge\standalone_pathfinding\pathfinding\pathfinder.cpp(1,1): error C1041: cannot open program database 'C:\Users\azeem\Documents\Projects\Games\OpenAge\build_pathfinding\Debug\pathfinding.pdb'; if multiple CL.EXE write to the same .PDB file, please use /FS [C:\Users\azeem\Documents\Projects\Games\OpenAge\build_pathfinding\pathfinding.vcxproj]
+  hash.cpp
+C:\Users\azeem\Documents\Projects\Games\OpenAge\standalone_pathfinding\util\hash.cpp(1,1): error C1041: cannot open program database 'C:\Users\azeem\Documents\Projects\Games\OpenAge\build_pathfinding\Debug\pathfinding.pdb'; if multiple CL.EXE write to the same .PDB file, please use /FS [C:\Users\azeem\Documents\Projects\Games\OpenAge\build_pathfinding\pathfinding.vcxproj]
+  Generating Code...

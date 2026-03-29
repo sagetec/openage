@@ -1,30 +1,102 @@
 // stubs/error/error.h
-// Stub: replaces openage's Error/MSG system with a simple assert.
-// Include this when building without the openage error/log subsystem.
+// Standalone stub for openage's Error/MSG system.
+//
+// OpenAge uses the pattern:
+//   throw Error{MSG(err) << "some text " << value};
+//   throw Error{ERR << "text"};
+//   ENSURE(cond, "text " << val << " more");
+//
+// We implement a lightweight MessageBuilder that supports operator<<
+// so that all existing uses in the pathfinding sources compile unchanged.
+
 #pragma once
 
-#include <cassert>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 
 namespace openage {
 
-// Minimal Error class stub
-struct Error : public std::runtime_error {
-    explicit Error(const std::string &msg) : std::runtime_error(msg) {}
+// ── MessageBuilder ────────────────────────────────────────────────────────────
+// Accumulates a message via operator<< and converts to string on demand.
+// Uses std::string internally (not ostringstream) so it is copyable/movable.
+class MessageBuilder {
+public:
+    MessageBuilder() = default;
+
+    explicit MessageBuilder(const char *prefix) : msg_(prefix) {}
+    explicit MessageBuilder(const std::string &prefix) : msg_(prefix) {}
+
+    // Copy and move support (needed by ENSURE and throw)
+    MessageBuilder(const MessageBuilder &) = default;
+    MessageBuilder(MessageBuilder &&) = default;
+    MessageBuilder &operator=(const MessageBuilder &) = default;
+    MessageBuilder &operator=(MessageBuilder &&) = default;
+
+    // Stream any type using a temporary ostringstream
+    template <typename T>
+    MessageBuilder &operator<<(const T &value) {
+        std::ostringstream ss;
+        ss << value;
+        msg_ += ss.str();
+        return *this;
+    }
+
+    // Specialisation for string literals / char* (avoids ambiguity)
+    MessageBuilder &operator<<(const char *s) {
+        if (s) msg_ += s;
+        return *this;
+    }
+
+    MessageBuilder &operator<<(const std::string &s) {
+        msg_ += s;
+        return *this;
+    }
+
+    std::string str() const { return msg_; }
+
+private:
+    std::string msg_;
 };
 
-// MSG macro stub — just returns the string
-#define MSG(level) std::string("[" #level "] ")
+// ── Error ─────────────────────────────────────────────────────────────────────
+// Thrown by ENSURE() and explicit throw Error{MSG(err) << "..."} sites.
+struct Error : public std::runtime_error {
+    // From a MessageBuilder (the common case: throw Error{MSG(err) << "..."})
+    explicit Error(const MessageBuilder &mb)
+        : std::runtime_error(mb.str()) {}
+
+    // From a plain string
+    explicit Error(const std::string &msg)
+        : std::runtime_error(msg) {}
+
+    explicit Error(const char *msg)
+        : std::runtime_error(msg ? msg : "") {}
+};
 
 } // namespace openage
 
-// ENSURE macro: assert in debug, throw in release
-// Matches the semantics used in util/misc.h and util/fixed_point.h
-#ifdef NDEBUG
-#   define ENSURE(cond, msg) \
-        do { if (!(cond)) throw openage::Error(msg); } while (false)
-#else
-#   define ENSURE(cond, msg) \
-        do { assert((cond) && (msg)); } while (false)
-#endif
+// ── Macros ────────────────────────────────────────────────────────────────────
+
+// MSG(level) — creates a MessageBuilder with a "[level] " prefix.
+// Usage: throw Error{MSG(err) << "some message"};
+#define MSG(level) ::openage::MessageBuilder("[" #level "] ")
+
+// ERR — shorthand for MSG(err), used in some OpenAge files.
+#define ERR ::openage::MessageBuilder("[error] ")
+
+// ENSURE(cond, msg_expr) — assertion with error message.
+// msg_expr can be:
+//   - A string literal:        ENSURE(x, "bad value")
+//   - A MessageBuilder chain:  ENSURE(x, MSG(err) << "bad " << val)
+//   - A bare stream chain:     ENSURE(x, "bad " << val)
+//
+// For bare-stream chains, we build via a temp MessageBuilder.
+#define ENSURE(cond, msg_expr) \
+    do { \
+        if (!(cond)) { \
+            ::openage::MessageBuilder _ensure_builder_; \
+            _ensure_builder_ << msg_expr; \
+            throw ::openage::Error(_ensure_builder_); \
+        } \
+    } while (false)

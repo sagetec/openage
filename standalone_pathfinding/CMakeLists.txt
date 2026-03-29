@@ -4,9 +4,13 @@ project(standalone_pathfinding CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# /FS: serialize PDB writes so parallel cl.exe instances don't collide (MSVC C1041)
+# MSVC: embed debug info in .obj files (/Z7) instead of a shared .pdb (/Zi).
+# This eliminates the C1041 PDB-lock race when multiple cl.exe run in parallel.
 if(MSVC)
-    add_compile_options(/FS)
+    add_compile_options(/Z7)
+    # Remove default /Zi or /ZI flags that CMake might inject
+    string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+    string(REPLACE "/ZI" "/Z7" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
 endif()
 
 # ── Portability stubs ─────────────────────────────────────────────────────────

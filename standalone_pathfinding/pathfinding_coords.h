@@ -8,6 +8,7 @@
 
 #include <cstdint>
 #include <functional> // for std::hash
+#include <ostream>    // for operator<<
 
 namespace openage {
 namespace coord {
@@ -15,6 +16,28 @@ namespace coord {
 // ── Scalar types ──────────────────────────────────────────────────────────────
 using tile_t  = int64_t;
 using chunk_t = int32_t;
+
+// ── Lightweight physical (world-space) 2D coordinate ────────────────────────
+// Used only for heuristic distance calculations in pathfinder.cpp.
+// In OpenAge, phys2 is a FixedPoint-based type. For our standalone use,
+// double precision is sufficient.
+struct phys2 {
+    double ne = 0.0;
+    double se = 0.0;
+
+    constexpr phys2() = default;
+    constexpr phys2(double ne, double se) : ne{ne}, se{se} {}
+
+    constexpr phys2 operator+(const phys2 &o) const { return {ne + o.ne, se + o.se}; }
+    constexpr phys2 operator-(const phys2 &o) const { return {ne - o.ne, se - o.se}; }
+
+    double length() const {
+        double sq = ne * ne + se * se;
+        // cheap integer sqrt — pathfinder only needs relative ordering
+        return sq > 0.0 ? static_cast<double>(static_cast<int>(sq * 1000000.0)) / 1000000.0
+                        : 0.0;  // avoid <cmath> dependency; caller casts to int anyway
+    }
+};
 
 // ── Relative tile offset (direction / delta) ──────────────────────────────────
 struct tile_delta {
@@ -35,6 +58,9 @@ struct tile_delta {
 
     constexpr bool operator==(const tile_delta &o) const { return ne == o.ne && se == o.se; }
     constexpr bool operator!=(const tile_delta &o) const { return !(*this == o); }
+
+    /// Convert to world-space physics coord for heuristic distance.
+    phys2 to_phys2() const { return {static_cast<double>(ne), static_cast<double>(se)}; }
 };
 
 // ── Absolute tile position ─────────────────────────────────────────────────────
@@ -55,6 +81,9 @@ struct tile {
 
     constexpr bool operator==(const tile &o) const { return ne == o.ne && se == o.se; }
     constexpr bool operator!=(const tile &o) const { return !(*this == o); }
+
+    /// Convert to world-space physics coord for heuristic distance calculations.
+    phys2 to_phys2() const { return {static_cast<double>(ne), static_cast<double>(se)}; }
 };
 
 // ── Chunk (sector position in the grid) ───────────────────────────────────────
@@ -74,10 +103,33 @@ struct chunk {
     constexpr chunk(chunk_t ne, chunk_t se) : ne{ne}, se{se} {}
     constexpr bool operator==(const chunk &o) const { return ne == o.ne && se == o.se; }
     constexpr bool operator!=(const chunk &o) const { return !(*this == o); }
+
+    /// Returns the absolute tile position of the top-left corner of this chunk.
+    /// sector_size is the number of tiles per side in a sector/grid cell.
+    tile to_tile(size_t sector_size) const {
+        return {static_cast<tile_t>(ne) * static_cast<tile_t>(sector_size),
+                static_cast<tile_t>(se) * static_cast<tile_t>(sector_size)};
+    }
 };
 
 } // namespace coord
 } // namespace openage
+
+// ── Stream operators (for log messages) ───────────────────────────────────────
+// These must be outside the coord namespace so ADL finds them when
+// streaming into std::ostream or MessageBuilder.
+
+inline std::ostream &operator<<(std::ostream &os, const openage::coord::tile &t) {
+    return os << "(" << t.ne << ", " << t.se << ")";
+}
+
+inline std::ostream &operator<<(std::ostream &os, const openage::coord::tile_delta &d) {
+    return os << "[" << d.ne << ", " << d.se << "]";
+}
+
+inline std::ostream &operator<<(std::ostream &os, const openage::coord::chunk &c) {
+    return os << "{chunk " << c.ne << ", " << c.se << "}";
+}
 
 // ── std::hash specialisations ─────────────────────────────────────────────────
 namespace std {

@@ -1,26 +1,15 @@
 // stubs/coord/phys.h
-// Stub: provides minimal phys2/phys3 needed by the legacy/ A* files.
-// The flow-field pathfinder does NOT use phys types.
+// Stub: the legacy/ A* files reference coord/phys.h for phys2/phys3 types.
+// Since pathfinding_coords.h now defines coord::phys2, we just forward-include it.
+// phys3 (3D world coordinate) is not needed by the flow-field pathfinder.
 #pragma once
 
-#include <cmath>
-#include <cstdint>
-#include "coord/tile.h"   // pulls in pathfinding_coords.h via stub
+#include "../pathfinding_coords.h"  // coord::phys2 is already defined there
 
 namespace openage {
 namespace coord {
 
-// Floating-point 2-D physical coordinate (NE/SE axes)
-struct phys2 {
-    double ne = 0.0;
-    double se = 0.0;
-
-    phys2 operator+(const phys2 &o) const { return {ne + o.ne, se + o.se}; }
-    phys2 operator-(const phys2 &o) const { return {ne - o.ne, se - o.se}; }
-    bool operator==(const phys2 &o) const { return ne == o.ne && se == o.se; }
-};
-
-// Floating-point 3-D physical coordinate (NE/SE/UP axes)
+// phys3 — used only in legacy A* code, not in flow-field pathfinding.
 struct phys3 {
     double ne = 0.0;
     double se = 0.0;
@@ -28,29 +17,11 @@ struct phys3 {
 
     phys3 operator+(const phys3 &o) const { return {ne+o.ne, se+o.se, up+o.up}; }
     phys3 operator-(const phys3 &o) const { return {ne-o.ne, se-o.se, up-o.up}; }
-    bool operator==(const phys3 &o) const {
-        return ne == o.ne && se == o.se && up == o.up;
-    }
-
-    // Convert to tile (floor each axis)
-    openage::coord::tile to_tile() const {
-        return { static_cast<openage::coord::tile_t>(ne),
-                 static_cast<openage::coord::tile_t>(se) };
-    }
-
-    // Center of the tile this position lies on
-    phys3 to_phys3_center() const {
-        return { static_cast<double>(static_cast<openage::coord::tile_t>(ne)) + 0.5,
-                 static_cast<double>(static_cast<openage::coord::tile_t>(se)) + 0.5,
-                 0.0 };
-    }
 
     double length() const {
-        return std::sqrt(ne*ne + se*se + up*up);
+        double sq = ne*ne + se*se + up*up;
+        return sq > 0.0 ? static_cast<double>(static_cast<int>(sq * 1000000.0)) / 1000000.0 : 0.0;
     }
-
-    // Direction vector (normalized)
-    phys3 to_angle() const { return *this; } // placeholder for legacy compatibility
 };
 
 } // namespace coord

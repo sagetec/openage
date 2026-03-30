@@ -287,7 +287,7 @@ public:
         size_t local_se  = static_cast<size_t>(tile.se) % ss;
         size_t tile_idx  = local_se * ss + local_ne;
 
-        flow_t flow_val  = flow_field->get_flow(tile_idx);
+        flow_t flow_val  = flow_field->get_cell(tile_idx);
 
         // LOS cells: straight line to goal
         if (flow_val & FLOW_LOS_MASK) {
